@@ -1,0 +1,15 @@
+# overlays/development/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base
+
+patchesStrategicMerge:
+- resource-patch.yaml
+- replicas-patch.yaml
+
+namespace: opensearch-dev
+
+commonLabels:
+  environment: development

@@ -1,0 +1,24 @@
+# Single PV for WSL testing
+# base/local-pv-wsl.yaml
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opensearch-node-pv-0
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/opensearch/node-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - YOUR_NODE_NAME  # Replace with your node name

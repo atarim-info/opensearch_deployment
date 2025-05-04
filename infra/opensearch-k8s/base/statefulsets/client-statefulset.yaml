@@ -1,0 +1,71 @@
+# opensearch-client-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-client
+spec:
+  serviceName: opensearch-cluster-client
+  replicas: 2
+  selector:
+    matchLabels:
+      app: opensearch
+      role: client
+  template:
+    metadata:
+      labels:
+        app: opensearch
+        role: client
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+      - name: increase-vm-max-map-count
+        image: busybox
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      containers:
+      - name: opensearch
+        image: opensearchproject/opensearch:2.9.0
+        env:
+        - name: cluster.name
+          value: opensearch-cluster
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: discovery.seed_hosts
+          value: "opensearch-cluster-master-headless"
+        - name: NODE_MASTER
+          value: "false"
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_INGEST
+          value: "true"
+        - name: JVM_HEAP_SIZE
+          value: "2g"
+        - name: OPENSEARCH_JAVA_OPTS
+          value: "-Xms2g -Xmx2g"
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+          requests:
+            cpu: 1
+            memory: 2Gi
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - name: config
+          mountPath: /usr/share/opensearch/config/opensearch.yml
+          subPath: opensearch.yml
+        - name: config
+          mountPath: /usr/share/opensearch/config/jvm.options
+          subPath: jvm.options
+      volumes:
+      - name: config
+        configMap:
+          name: opensearch-config

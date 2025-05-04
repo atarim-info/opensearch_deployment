@@ -1,0 +1,7 @@
+# opensearch-namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: opensearch
+  labels:
+    name: opensearch

@@ -1,0 +1,90 @@
+# opensearch-data-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-data
+spec:
+  serviceName: opensearch-cluster-data-headless
+  replicas: 2  # Reduced for local testing
+  selector:
+    matchLabels:
+      app: opensearch
+      role: data
+  template:
+    metadata:
+      labels:
+        app: opensearch
+        role: data
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+      - name: increase-vm-max-map-count
+        image: busybox
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      - name: fix-permissions
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:1000 /usr/share/opensearch/data"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/opensearch/data
+      containers:
+      - name: opensearch
+        image: opensearchproject/opensearch:2.9.0
+        env:
+        - name: cluster.name
+          value: opensearch-cluster
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: discovery.seed_hosts
+          value: "opensearch-cluster-master-headless"
+        - name: NODE_MASTER
+          value: "false"
+        - name: NODE_DATA
+          value: "true"
+        - name: NODE_INGEST
+          value: "false"
+        - name: JVM_HEAP_SIZE
+          value: "8g"
+        - name: OPENSEARCH_JAVA_OPTS
+          value: "-Xms8g -Xmx8g"
+        resources:
+          limits:
+            cpu: 4
+            memory: 16Gi
+          requests:
+            cpu: 2
+            memory: 8Gi
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/opensearch/data
+        - name: config
+          mountPath: /usr/share/opensearch/config/opensearch.yml
+          subPath: opensearch.yml
+        - name: config
+          mountPath: /usr/share/opensearch/config/jvm.options
+          subPath: jvm.options
+      volumes:
+      - name: config
+        configMap:
+          name: opensearch-config
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: local-storage  # Using local storage
+      resources:
+        requests:
+          storage: 30Gi  # Reduced for local testing

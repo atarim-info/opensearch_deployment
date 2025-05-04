@@ -1,0 +1,68 @@
+# base/local-pv-master.yaml
+---
+# Master node PVs
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opensearch-master-pv-0
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/opensearch/master-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - YOUR_NODE_NAME  # Replace with your node name
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opensearch-master-pv-1
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/opensearch/master-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - YOUR_NODE_NAME  # Replace with your node name
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opensearch-master-pv-2
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/opensearch/master-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - YOUR_NODE_NAME  # Replace with your node name

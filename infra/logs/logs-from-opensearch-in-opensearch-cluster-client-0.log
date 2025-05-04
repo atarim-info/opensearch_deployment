@@ -1,0 +1,31 @@
+Enabling execution of install_demo_configuration.sh for OpenSearch Security Plugin
+**************************************************************************
+** This tool will be deprecated in the next major release of OpenSearch **
+** https://github.com/opensearch-project/security/issues/1755           **
+**************************************************************************
+OpenSearch Security Demo Installer
+ ** Warning: Do not use on production or public reachable systems **
+Basedir: /usr/share/opensearch
+OpenSearch install type: rpm/deb on NAME="Amazon Linux"
+OpenSearch config dir: /usr/share/opensearch/config
+OpenSearch config file: /usr/share/opensearch/config/opensearch.yml
+OpenSearch bin dir: /usr/share/opensearch/bin
+OpenSearch plugins dir: /usr/share/opensearch/plugins
+OpenSearch lib dir: /usr/share/opensearch/lib
+Detected OpenSearch Version: x-content-2.9.0
+Detected OpenSearch Security Version: 2.9.0.0
+/usr/share/opensearch/config/opensearch.yml seems to be already configured for Security. Quit.
+Enabling OpenSearch Security Plugin
+Enabling execution of OPENSEARCH_HOME/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli for OpenSearch Performance Analyzer Plugin
+Exception in thread "main" java.lang.RuntimeException: starting java failed with [1]
+output:
+
+error:
+Invalid initial heap size: -Xms${JVM_HEAP_SIZE}
+Error: Could not create the Java Virtual Machine.
+Error: A fatal exception has occurred. Program will exit.
+	at org.opensearch.tools.launchers.JvmErgonomics.flagsFinal(JvmErgonomics.java:125)
+	at org.opensearch.tools.launchers.JvmErgonomics.finalJvmOptions(JvmErgonomics.java:87)
+	at org.opensearch.tools.launchers.JvmErgonomics.choose(JvmErgonomics.java:70)
+	at org.opensearch.tools.launchers.JvmOptionsParser.jvmOptions(JvmOptionsParser.java:150)
+	at org.opensearch.tools.launchers.JvmOptionsParser.main(JvmOptionsParser.java:108)

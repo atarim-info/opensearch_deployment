@@ -1,0 +1,40 @@
+# overlays/development/resource-patch.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-master
+spec:
+  template:
+    spec:
+      containers:
+      - name: opensearch
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+        env:
+        - name: JVM_HEAP_SIZE
+          value: "1g"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-data
+spec:
+  template:
+    spec:
+      containers:
+      - name: opensearch
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+          requests:
+            cpu: 1
+            memory: 2Gi
+        env:
+        - name: JVM_HEAP_SIZE
+          value: "2g"

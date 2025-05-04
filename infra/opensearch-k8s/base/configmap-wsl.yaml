@@ -1,0 +1,49 @@
+# Single node configuration for OpenSearch on WSL
+# base/configmap-wsl.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opensearch-config
+data:
+  opensearch.yml: |-
+    cluster.name: opensearch-cluster
+    network.host: 0.0.0.0
+
+    # Security settings
+    plugins.security.ssl.transport.pemcert_filepath: esnode.pem
+    plugins.security.ssl.transport.pemkey_filepath: esnode-key.pem
+    plugins.security.ssl.transport.pemtrustedcas_filepath: root-ca.pem
+    plugins.security.ssl.http.pemcert_filepath: esnode.pem
+    plugins.security.ssl.http.pemkey_filepath: esnode-key.pem
+    plugins.security.ssl.http.pemtrustedcas_filepath: root-ca.pem
+    plugins.security.allow_unsafe_democertificates: true
+    plugins.security.allow_default_init_securityindex: true
+    plugins.security.authcz.admin_dn:
+      - CN=kirk,OU=client,O=client,L=test,C=de
+
+    # Single node configuration
+    discovery.type: single-node
+    
+    # Resource limits
+    bootstrap.memory_lock: true
+    
+    # Path settings
+    path.data: /usr/share/opensearch/data
+    path.logs: /usr/share/opensearch/logs
+    
+    # Custom JVM settings
+    opensearch.performance.analyzer.enabled: true
+    
+    # Advanced settings
+    action.auto_create_index: ".security*,.opendistro*,.opensearch*,*"
+    
+  jvm.options: |-
+    -Xms512m
+    -Xmx512m
+    -XX:+UseG1GC
+    -XX:G1ReservePercent=25
+    -XX:InitiatingHeapOccupancyPercent=30
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=/usr/share/opensearch/logs/
+    -XX:ErrorFile=/usr/share/opensearch/logs/hs_err_pid%p.log

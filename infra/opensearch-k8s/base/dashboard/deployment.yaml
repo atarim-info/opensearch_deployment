@@ -1,0 +1,89 @@
+# opensearch-dashboard-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-dashboard
+  # namespace: opensearch
+  labels:
+    app: opensearch-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch-dashboard
+  template:
+    metadata:
+      labels:
+        app: opensearch-dashboard
+    spec:
+      containers:
+      - name: opensearch-dashboard
+        image: opensearchproject/opensearch-dashboards:2.9.0
+        ports:
+        - containerPort: 5601
+          name: web
+        env:
+        - name: OPENSEARCH_HOSTS
+          value: https://opensearch-cluster:9200
+        - name: SERVER_HOST
+          value: "0.0.0.0"
+        - name: SERVER_PORT
+          value: "5601"
+        - name: OPENSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: opensearch-credentials
+              key: username
+        - name: OPENSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: opensearch-credentials
+              key: password
+        - name: OPENSEARCH_SSL_VERIFICATIONMODE
+          value: none
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: opensearch-dashboard
+#   # namespace: opensearch
+#   labels:
+#     app: opensearch-dashboard
+# spec:
+#   selector:
+#     app: opensearch-dashboard
+#   ports:
+#   - name: http
+#     port: 5601
+#     targetPort: 5601
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: opensearch-dashboard-ingress
+  # namespace: opensearch
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+  - hosts:
+    - dashboard.opensearch.example.com
+    secretName: opensearch-dashboard-tls-secret
+  rules:
+  - host: dashboard.opensearch.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: opensearch-dashboard
+            port:
+              name: http

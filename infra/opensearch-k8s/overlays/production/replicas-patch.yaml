@@ -1,0 +1,21 @@
+# overlays/production/replicas-patch.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-master
+spec:
+  replicas: 3
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-data
+spec:
+  replicas: 5
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-client
+spec:
+  replicas: 3

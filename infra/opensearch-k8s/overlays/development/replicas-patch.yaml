@@ -1,0 +1,21 @@
+# overlays/development/replicas-patch.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-master
+spec:
+  replicas: 1  # Single master for local testing
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-data
+spec:
+  replicas: 1  # Single data node for local testing
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-cluster-client
+spec:
+  replicas: 1  # Single client node for local testing
