@@ -81,6 +81,14 @@ spec:
           mountPath: /usr/share/opensearch/config/root-ca.pem
           subPath: root-ca.pem
           readOnly: true
+        - name: certs
+          mountPath: /usr/share/opensearch/config/dashboards.pem
+          subPath: dashboards.pem
+          readOnly: true
+        - name: certs
+          mountPath: /usr/share/opensearch/config/dashboards.key
+          subPath: dashboards.key
+          readOnly: true
       volumes:
       - name: config
         configMap:
@@ -95,6 +103,10 @@ spec:
             path: esnode-key.pem
           - key: root-ca.pem
             path: root-ca.pem
+          - key: dashboards.pem
+            path: dashboards.pem
+          - key: dashboards.key
+            path: dashboards.key
   volumeClaimTemplates:
   - metadata:
       name: data

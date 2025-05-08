@@ -24,17 +24,17 @@ spec:
           name: web
         env:
         - name: OPENSEARCH_HOSTS
-          value: https://opensearch-cluster:9200
+          value: http://opensearch-cluster:9200
         - name: SERVER_HOST
           value: "0.0.0.0"
         - name: SERVER_PORT
           value: "5601"
         - name: OPENSEARCH_SSL_CERTIFICATE_AUTHORITIES
-              value: "/usr/share/opensearch-dashboards/config/certificates/root-ca.pem"
+          value: "/usr/share/opensearch/config/root-ca.pem"
         - name: OPENSEARCH_SSL_CERTIFICATE
-          value: "/usr/share/opensearch-dashboards/config/certificates/dashboards.pem"
+          value: "/usr/share/opensearch/config/dashboards.pem"
         - name: OPENSEARCH_SSL_KEY
-          value: "/usr/share/opensearch-dashboards/config/certificates/dashboards.key"
+          value: "/usr/share/opensearch/config/dashboards.key"
         - name: OPENSEARCH_SSL_VERIFICATION_MODE
           value: "none"  # Optional for testing; remove in production
         - name: OPENSEARCH_USERNAME
@@ -56,6 +56,30 @@ spec:
           requests:
             cpu: 500m
             memory: 1Gi
+        volumeMounts:
+        - name: certs
+          mountPath: /usr/share/opensearch/config/dashboards.pem
+          subPath: dashboards.pem
+          readOnly: true
+        - name: certs
+          mountPath: /usr/share/opensearch/config/dashboards.key
+          subPath: dashboards.key
+          readOnly: true
+        - name: certs
+          mountPath: /usr/share/opensearch/config/root-ca.pem
+          subPath: root-ca.pem
+          readOnly: true
+      volumes:
+      - name: certs
+        secret:
+          secretName: opensearch-certs
+          items:
+          - key: dashboards.pem
+            path: dashboards.pem
+          - key: dashboards.key
+            path: dashboards.key
+          - key: root-ca.pem
+            path: root-ca.pem
 # ---
 # apiVersion: v1
 # kind: Service
