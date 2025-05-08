@@ -1,0 +1,18 @@
+# base/services/headless-service.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-cluster-headless
+  labels:
+    app: opensearch
+    role: master
+spec:
+  selector:
+    app: opensearch
+    role: master
+  clusterIP: None
+  ports:
+  - name: transport
+    port: 9300
+    targetPort: 9300

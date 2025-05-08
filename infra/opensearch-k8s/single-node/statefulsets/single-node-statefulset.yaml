@@ -50,10 +50,10 @@ spec:
           value: "single-node"
         resources:
           limits:
-            cpu: 1
+            cpu: "1"
             memory: 2Gi
           requests:
-            cpu: 500m
+            cpu: "500m"
             memory: 1Gi
         ports:
         - containerPort: 9200
@@ -69,10 +69,32 @@ spec:
         - name: config
           mountPath: /usr/share/opensearch/config/jvm.options
           subPath: jvm.options
+        - name: certs
+          mountPath: /usr/share/opensearch/config/esnode.pem
+          subPath: esnode.pem
+          readOnly: true
+        - name: certs
+          mountPath: /usr/share/opensearch/config/esnode-key.pem
+          subPath: esnode-key.pem
+          readOnly: true
+        - name: certs
+          mountPath: /usr/share/opensearch/config/root-ca.pem
+          subPath: root-ca.pem
+          readOnly: true
       volumes:
       - name: config
         configMap:
           name: opensearch-config
+      - name: certs
+        secret:
+          secretName: opensearch-certs
+          items:
+          - key: esnode.pem
+            path: esnode.pem
+          - key: esnode-key.pem
+            path: esnode-key.pem
+          - key: root-ca.pem
+            path: root-ca.pem
   volumeClaimTemplates:
   - metadata:
       name: data

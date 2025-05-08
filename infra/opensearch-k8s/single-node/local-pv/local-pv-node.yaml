@@ -21,4 +21,4 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - YOUR_NODE_NAME  # Replace with your node name
+          - minikube  # Replace with your node name

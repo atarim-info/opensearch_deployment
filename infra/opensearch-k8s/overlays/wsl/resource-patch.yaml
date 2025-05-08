@@ -1,0 +1,33 @@
+# overlays/development/resource-patch.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-node
+spec:
+  serviceName: opensearch-node-headless
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      containers:
+      - name: opensearch
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+        env:
+        - name: JVM_HEAP_SIZE
+          value: "2g"
+        - name: NODE_MASTER
+          value: "true"
+        - name: NODE_DATA
+          value: "true"
+        - name: NODE_INGEST
+          value: "true"

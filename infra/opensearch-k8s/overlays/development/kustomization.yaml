@@ -3,7 +3,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-- ../../base
+- ../../base/
+- ../../multi-node/
+- ../../storage/local/
 
 patchesStrategicMerge:
 - resource-patch.yaml
@@ -11,5 +13,8 @@ patchesStrategicMerge:
 
 namespace: opensearch-dev
 
-commonLabels:
-  environment: development
+labels:
+- includeSelectors: true
+  pairs:
+    environment: dev
+

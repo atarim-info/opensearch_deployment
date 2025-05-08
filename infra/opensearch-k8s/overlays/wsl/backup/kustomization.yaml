@@ -1,0 +1,31 @@
+# WSL overlay kustomization.yaml
+# overlays/wsl/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base
+# - ../../base/namespace.yaml
+# - ../../base/local-storage.yaml
+# - ../../base/local-pv-master.yaml
+- services.yaml
+- single-node.yaml
+# - ../../base/dashboard/
+
+configMapGenerator:
+- name: opensearch-config
+  files:
+  - opensearch.yml=../../base/configmap-wsl.yaml
+
+# secretGenerator:
+# - literals:
+#   - username=admin
+#   - password=admin
+#   name: opensearch-credentials
+
+namespace: opensearch-wsl
+
+labels:
+- includeSelectors: true
+  pairs:
+    environment: wsl

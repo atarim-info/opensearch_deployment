@@ -4,15 +4,11 @@ kind: Kustomization
 
 resources:
 - namespace.yaml
-- local-storage.yaml
-- local-pv-master.yaml
-- local-pv-data.yaml
-- configmap.yaml
 - secrets.yaml
-- services/
-- statefulsets/
 - dashboard/
 
-commonLabels:
-  app.kubernetes.io/name: opensearch
-  app.kubernetes.io/part-of: opensearch-cluster
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/name: opensearch
+    app.kubernetes.io/part-of: opensearch-cluster

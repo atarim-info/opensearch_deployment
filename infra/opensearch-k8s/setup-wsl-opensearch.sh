@@ -1,7 +1,10 @@
-# Setup script for WSL single node
----
-#!/bin/bash
 # setup-wsl-opensearch.sh
+#!/bin/bash
+
+# Setup script for WSL single node OpenSearch deployment
+# This script creates a local directory for OpenSearch data and configures the necessary Kubernetes resources.
+# This script is designed to be run in a WSL environment with Kubernetes and kubectl installed.
+
 
 # Create directories
 sudo mkdir -p /mnt/opensearch/node-0
