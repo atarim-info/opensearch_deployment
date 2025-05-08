@@ -29,6 +29,14 @@ spec:
           value: "0.0.0.0"
         - name: SERVER_PORT
           value: "5601"
+        - name: OPENSEARCH_SSL_CERTIFICATE_AUTHORITIES
+              value: "/usr/share/opensearch-dashboards/config/certificates/root-ca.pem"
+        - name: OPENSEARCH_SSL_CERTIFICATE
+          value: "/usr/share/opensearch-dashboards/config/certificates/dashboards.pem"
+        - name: OPENSEARCH_SSL_KEY
+          value: "/usr/share/opensearch-dashboards/config/certificates/dashboards.key"
+        - name: OPENSEARCH_SSL_VERIFICATION_MODE
+          value: "none"  # Optional for testing; remove in production
         - name: OPENSEARCH_USERNAME
           valueFrom:
             secretKeyRef:
