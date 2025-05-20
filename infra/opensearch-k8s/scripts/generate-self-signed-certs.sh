@@ -69,11 +69,22 @@ chmod 600 $CERT_DIR/{*.key,*.pem}
 
 echo "Encoding certificates for Kubernetes secret..."
 echo "To create Kubernetes secret, encode these files in base64 and update the secrets-opensearch-certs.yaml manifest."
+base64 -w 0 $CERT_DIR/root-ca.pem > $CERT_DIR/encoded_root-ca.pem.txt 
 base64 -w 0 $CERT_DIR/esnode.pem > $CERT_DIR/encoded_esnode.pem.txt 
 base64 -w 0 $CERT_DIR/esnode-key.pem > $CERT_DIR/encoded_esnode-key.pem.txt 
-base64 -w 0 $CERT_DIR/root-ca.pem > $CERT_DIR/encoded_root-ca.pem.txt 
 base64 -w 0 $CERT_DIR/dashboards.pem > $CERT_DIR/encoded_dashboards.pem.txt 
 base64 -w 0 $CERT_DIR/dashboards.key > $CERT_DIR/encoded_dashboards.key.txt 
 
-# cat $CERT_DIR/encoded_esnode.pem.txt $CERT_DIR/encoded_esnode-key.pem.txt $CERT_DIR/encoded_root-ca.pem.txt
-echo \n\n\n
+echo "Replacing placeholders in secrets.yaml with base64 encoded values..."
+
+BASE_DIR=infra/opensearch-k8s/base
+SECRETS_YAML=$BASE_DIR/secrets.yaml
+cp $SECRETS_YAML $SECRETS_YAML.bak
+
+sed -e "s/{{BASE64-ENCODED-ROOT-CA-CERT}}/$(<$CERT_DIR/encoded_root-ca.pem.txt)/" \
+    -e "s/{{BASE64-ENCODED-ESNODE-PEM}}/$(<$CERT_DIR/encoded_esnode.pem.txt)/" \
+    -e "s/{{BASE64-ENCODED-ESNODE-KEY-PEM}}/$(<$CERT_DIR/encoded_esnode-key.pem.txt)/" \
+    -e "s/{{BASE64-ENCODED-DASHBOARDS-PEM}}/$(<$CERT_DIR/encoded_dashboards.pem.txt)/" \
+    -e "s/{{BASE64-ENCODED-DASHBOARDS-KEY}}/$(<$CERT_DIR/encoded_dashboards.key.txt)/" \
+     $BASE_DIR/secrets-template.yaml > $SECRETS_YAML
+echo "Kubernetes secret manifest updated with base64 encoded values."

@@ -17,62 +17,64 @@ spec:
         app: opensearch-dashboard
     spec:
       containers:
-      - name: opensearch-dashboard
-        image: opensearchproject/opensearch-dashboards:2.9.0
-        ports:
-        - containerPort: 5601
-          name: web
-        env:
-        - name: OPENSEARCH_HOSTS
-          value: http://opensearch-cluster:9200
-        - name: SERVER_HOST
-          value: "0.0.0.0"
-        - name: SERVER_PORT
-          value: "5601"
-        - name: OPENSEARCH_SSL_CERTIFICATE_AUTHORITIES
-          value: "/usr/share/opensearch/config/root-ca.pem"
-        - name: OPENSEARCH_SSL_CERTIFICATE
-          value: "/usr/share/opensearch/config/dashboards.pem"
-        - name: OPENSEARCH_SSL_KEY
-          value: "/usr/share/opensearch/config/dashboards.key"
-        - name: OPENSEARCH_SSL_VERIFICATION_MODE
-          value: "none"  # Optional for testing; remove in production
-        - name: OPENSEARCH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: opensearch-credentials
-              key: username
-        - name: OPENSEARCH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: opensearch-credentials
-              key: password
-        - name: OPENSEARCH_SSL_VERIFICATIONMODE
-          value: none
-        resources:
-          limits:
-            cpu: 1
-            memory: 2Gi
-          requests:
-            cpu: 500m
-            memory: 1Gi
-        volumeMounts:
-        - name: certs
-          mountPath: /usr/share/opensearch/config/dashboards.pem
-          subPath: dashboards.pem
-          readOnly: true
-        - name: certs
-          mountPath: /usr/share/opensearch/config/dashboards.key
-          subPath: dashboards.key
-          readOnly: true
-        - name: certs
-          mountPath: /usr/share/opensearch/config/root-ca.pem
-          subPath: root-ca.pem
-          readOnly: true
+        - name: opensearch-dashboard
+          image: opensearchproject/opensearch-dashboards:2.9.0
+          ports:
+          - containerPort: 5601
+            name: web
+          env:
+          - name: OPENSEARCH_HOSTS
+            value: https://opensearch-service.opensearch-wsl.svc.cluster.local:9200
+          - name: SERVER_HOST
+            value: "0.0.0.0"
+          - name: SERVER_PORT
+            value: "5601"
+          - name: OPENSEARCH_SSL_CERTIFICATE_AUTHORITIES
+            value: "/usr/share/opensearch/config/certificates/root-ca.pem"
+          - name: OPENSEARCH_SSL_CERTIFICATE
+            value: "/usr/share/opensearch/config/certificates/dashboards.pem"
+          - name: OPENSEARCH_SSL_KEY
+            value: "/usr/share/opensearch/config/certificates/dashboards.key"
+          - name: OPENSEARCH_SSL_VERIFICATION_MODE
+            value: "none"  # Optional for testing; remove in production
+          - name: OPENSEARCH_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: opensearch-credentials
+                key: username
+          - name: OPENSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: opensearch-credentials
+                key: password
+          - name: OPENSEARCH_SSL_VERIFICATIONMODE
+            value: none
+          resources:
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+          volumeMounts:
+          - name: opensearch-certs
+            mountPath: /usr/share/opensearch-dashboards/config/certificates
+          - name: opensearch-certs
+            mountPath: /usr/share/opensearch/config/certificates/dashboards.pem
+            subPath: dashboards.pem
+            readOnly: true
+          - name: opensearch-certs
+            mountPath: /usr/share/opensearch/config/certificates/dashboards.key
+            subPath: dashboards.key
+            readOnly: true
+          - name: opensearch-certs
+            mountPath: /usr/share/opensearch/config/certificates/root-ca.pem
+            subPath: root-ca.pem
+            readOnly: true
       volumes:
-      - name: certs
+      - name: opensearch-certs
         secret:
-          secretName: opensearch-certs
+          secretName: opensearch-certificates
           items:
           - key: dashboards.pem
             path: dashboards.pem
@@ -95,27 +97,3 @@ spec:
 #   - name: http
 #     port: 5601
 #     targetPort: 5601
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: opensearch-dashboard-ingress
-  # namespace: opensearch
-  annotations:
-    kubernetes.io/ingress.class: nginx
-spec:
-  tls:
-  - hosts:
-    - dashboard.opensearch.example.com
-    secretName: opensearch-dashboard-tls-secret
-  rules:
-  - host: dashboard.opensearch.example.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: opensearch-dashboard
-            port:
-              name: http

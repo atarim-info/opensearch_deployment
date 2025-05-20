@@ -1,0 +1,1 @@
+minikube start --cpus=4 --memory=8192 --extra-config=apiserver.service-node-port-range=1-65535 --ports=127.0.0.1:9001:9001,127.0.0.1:26379:26379,127.0.0.1:39200:39200

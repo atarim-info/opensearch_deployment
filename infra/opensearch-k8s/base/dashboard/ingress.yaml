@@ -1,26 +1,23 @@
-# opensearch-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: opensearch-ingress
+  name: opensearch-dashboard-ingress
   # namespace: opensearch
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   tls:
   - hosts:
-    - opensearch.example.com
-    secretName: opensearch-certificates
+    - dashboard.opensearch.example.com
+    secretName: opensearch-dashboard-tls-secret
   rules:
-  - host: opensearch.example.com
+  - host: dashboard.opensearch.example.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: opensearch-cluster
+            name: opensearch-dashboard
             port:
               name: http

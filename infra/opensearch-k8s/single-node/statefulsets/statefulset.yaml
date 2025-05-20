@@ -1,0 +1,93 @@
+# Single StatefulSet for WSL
+# overlays/wsl/single-node.yaml
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch-node
+spec:
+  serviceName: opensearch-node-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: increase-vm-max-map-count
+          image: busybox
+          command: ["sysctl", "-w", "vm.max_map_count=262144"]
+          securityContext:
+            privileged: true
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /usr/share/opensearch/data"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+          - name: data
+            mountPath: /usr/share/opensearch/data
+      containers:
+      - name: opensearch
+        image: opensearchproject/opensearch:2.9.0
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: 2Gi
+          requests:
+            cpu: "1000m"
+            memory: 2Gi
+        env:
+          - name: discovery.type
+            value: single-node
+          - name: cluster.name
+            value: opensearch-cluster
+          - name: node.name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: OPENSEARCH_JAVA_OPTS
+            value: "-Xms512m -Xmx512m"
+          - name: network.host
+            value: "0.0.0.0"
+        ports:
+          - containerPort: 9200
+            name: http
+          - containerPort: 9300
+            name: transport
+        volumeMounts:
+          - name: opensearch-config
+            mountPath: /usr/share/opensearch/config/opensearch.yml
+            subPath: opensearch.yml
+          - name: opensearch-data
+            mountPath: /usr/share/opensearch/data
+          - name: opensearch-config
+            mountPath: /usr/share/opensearch/config/jvm.options
+            subPath: jvm.options
+          - name: opensearch-certs
+            mountPath: /usr/share/opensearch/config/certificates
+            readOnly: true
+      volumes:
+        - name: opensearch-config
+          configMap:
+            name: opensearch-config
+        - name: opensearch-data
+          persistentVolumeClaim:
+            claimName: opensearch-pvc
+        - name: opensearch-certs
+          secret:
+            secretName: opensearch-certificates
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: local-storage
+        resources:
+          requests:
+            storage: 5Gi
