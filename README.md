@@ -12,6 +12,23 @@ This repository contains Kubernetes manifests and overlays for deploying OpenSea
 
 ## Deployment
 
+### Persistent Volumes and Secrets Generation
+
+Before deploying any overlay, ensure that persistent volumes (PV) and secrets are generated and applied. You can use the provided scripts and manifests in the `infra/opensearch-k8s` directory:
+
+- To generate self-signed certificates and secrets, run:
+
+```bash
+bash infra/opensearch-k8s/scripts/generate-self-signed-certs.sh
+kubectl apply -f infra/opensearch-k8s/base/secrets.yaml
+```
+
+- To set up local persistent volumes (for WSL or local environments), run:
+
+```bash
+bash infra/opensearch-k8s/scripts/setup-local-pv.sh
+```
+
 ### Development
 
 Deploy the development environment overlay:
@@ -30,13 +47,39 @@ kubectl create namespace opensearch-prod
 kubectl apply -k infra/opensearch-k8s/overlays/production
 ```
 
-### WSL
+### WSL (Windows Subsystem for Linux 2)
 
-Deploy the WSL environment overlay:
+Deploy the WSL environment overlay with a single-node OpenSearch cluster and local persistent volumes:
+
+1. Create the namespace:
 
 ```bash
 kubectl create namespace opensearch-wsl
+```
+
+2. Generate and apply secrets and certificates:
+
+```bash
+bash infra/opensearch-k8s/scripts/generate-self-signed-certs.sh
+kubectl apply -f infra/opensearch-k8s/base/secrets.yaml
+```
+
+3. Set up local persistent volumes compatible with WSL:
+
+```bash
+bash infra/opensearch-k8s/scripts/setup-local-pv.sh
+```
+
+4. Apply the WSL overlay:
+
+```bash
 kubectl apply -k infra/opensearch-k8s/overlays/wsl
+```
+
+5. To access the OpenSearch Dashboard from the hosting machine, run:
+
+```bash
+kubectl port-forward service/opensearch-dashboard 5601:5601 -n opensearch-wsl &
 ```
 
 ## Notes

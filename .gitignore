@@ -1,3 +1,4 @@
 certs
 infra/opensearch-k8s/base/secrets.yaml
 
+infra/opensearch-k8s/base/secrets.yaml.bak
